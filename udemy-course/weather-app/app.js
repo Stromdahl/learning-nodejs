@@ -1,13 +1,28 @@
 const geocode = require("./utils/geocode");
 const forecast = require("./utils/forecast")
 
+const address = process.argv[2];
 
-geocode('Svedala, Sweden', (error, data) => {
-    console.log('Error:', error);
-    console.log('Data:', data);
-});
+if(!address) {
+    console.log("No address provided");
+    process.exit()
+}
 
-forecast(55.513841, 13.231894, (error, data) => {
-  console.log("Error:", error);
-  console.log("Data:", data);
+geocode(process.argv[2], (error, {latitude, longitude, location} = {}) => {
+    if(error){
+        console.log('Error:', error);
+        return;
+    }
+
+    forecast(latitude, longitude, (error, {temperature, feelsLike} = {}) => {
+        if(error){
+            console.log("Error:", error);
+            return;
+        }
+        
+        console.log(location);
+        console.log("Temperature:", temperature);
+        console.log("Feels like:", feelsLike);
+
+    });
 });
