@@ -58,7 +58,7 @@ app.get('/help/*', (req, res) => {
         name: 'Mattias Strömdahl'
 
     });
-})
+});
 
 app.get('*', (req, res) => {
     res.render('404', {
@@ -66,7 +66,7 @@ app.get('*', (req, res) => {
         errorMessage: 'Page not found',
         name: 'Mattias Strömdahl'
     });
-})
+});
 
 app.listen(3000, () => {
     console.log('Server is up on port 3000.')  
