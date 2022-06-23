@@ -1,6 +1,6 @@
 const mongodb = require('mongodb');
 
-const connectionURL = 'mongodb://root:password@127.0.0.1:27017';
+const connectionURL = 'mongodb://127.0.0.1:27017/test';
 const databaseName = 'task-manager';
 
 const MongoClient = new mongodb.MongoClient(connectionURL);

@@ -11,7 +11,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/src/db/mongoose.js"
+            "program": "${workspaceFolder}/src/index.js"
         }
     ]
 }
