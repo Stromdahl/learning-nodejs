@@ -2,6 +2,8 @@ import bcrypt from "bcryptjs";
 import jsonwebtoken from "jsonwebtoken";
 import mongoose from "mongoose";
 import validator from 'validator'
+import Task from './task.js';
+
 
 const userSchema = mongoose.Schema({
     name: {
@@ -49,6 +51,12 @@ const userSchema = mongoose.Schema({
     }]
 });
 
+userSchema.virtual('tasks', {
+    ref: 'Task',
+    localField: '_id',
+    foreignField: 'owner'
+})
+
 userSchema.methods.generateAuthToken = async function() {
     const token = jsonwebtoken.sign({ _id: this._id.toString() }, 'hamburgers');
 
@@ -92,6 +100,13 @@ userSchema.pre('save', async function (next) {
 
     next();
 });
+
+// Delete user taskts when user is removed
+userSchema.pre('remove', async function (next) {
+    const user = this
+    await Task.deleteMany({owner: user._id})
+    next()
+})
 
 const User = mongoose.model('User', userSchema);
 
