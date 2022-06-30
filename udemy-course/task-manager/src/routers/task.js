@@ -19,9 +19,24 @@ router.post('/tasks', auth, async (request, response) => {
 });
 
 router.get('/tasks', auth, async (request, response) => {
+    const match = {}
+
+    if (request.query.completed) {
+        match.completed = request.query.completed === 'true';
+    }
+
     try {
-        // const tasks = await Task.find({});
-        await request.user.populate('tasks')
+        await request.user.populate({
+            path: 'tasks',
+            match,
+            options: {
+                limit: parseInt(request.query.limit),
+                skip: parseInt(request.query.skip),
+                sort: {
+                    completed: 1
+                }
+            }
+        })
         response.send(request.user.tasks);
     } catch (error) {
         response.status(500).send()
@@ -53,7 +68,7 @@ router.patch('/tasks/:id', auth, async (request, response) => {
     }
 
     try {
-        const task = await Task.findOne({_id: request.params.id, owner: request.user._id});
+        const task = await Task.findOne({ _id: request.params.id, owner: request.user._id });
         // const task = await Task.findById(request.params.id);
 
         if (!task) {
@@ -71,8 +86,8 @@ router.patch('/tasks/:id', auth, async (request, response) => {
 
 router.delete('/tasks/:id', auth, async (request, response) => {
     try {
-        const task = await Task.findOneAndDelete({_id: request.params.id, owner: request.user._id});
-        
+        const task = await Task.findOneAndDelete({ _id: request.params.id, owner: request.user._id });
+
         if (!task) {
             return response.status(404).send();
         }
