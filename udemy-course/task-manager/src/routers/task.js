@@ -20,9 +20,16 @@ router.post('/tasks', auth, async (request, response) => {
 
 router.get('/tasks', auth, async (request, response) => {
     const match = {}
+    const sort = {}
 
     if (request.query.completed) {
         match.completed = request.query.completed === 'true';
+    }
+
+    if (request.query.sortBy) {
+        const parts = request.query.sortBy.split(':');
+        const direction = parts[1] === 'desc' ? -1 : 1;
+        sort[parts[0]] = direction;
     }
 
     try {
@@ -32,9 +39,7 @@ router.get('/tasks', auth, async (request, response) => {
             options: {
                 limit: parseInt(request.query.limit),
                 skip: parseInt(request.query.skip),
-                sort: {
-                    completed: 1
-                }
+                sort
             }
         })
         response.send(request.user.tasks);
