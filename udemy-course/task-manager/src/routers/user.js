@@ -44,7 +44,7 @@ router.post('/users/logout', auth, async (request, response) => {
 });
 
 router.post('/users/logoutAll', auth, async (request, response) => {
-    try{
+    try {
         request.user.tokens = [];
         await request.user.save()
 
@@ -88,20 +88,44 @@ router.delete('/users/me', auth, async (request, response) => {
 });
 
 const upload = multer({
-    dest: 'avatars',
     limits: {
         fileSize: 1000000
     },
     fileFilter(req, file, cb) {
-        if(!file.originalname.match(/\.(jpg|jpeg|png)$/)){
+        if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
             return cb(new Error("Please upload a Image"));
         }
         cb(undefined, true);
     }
-}); 
+});
 
-router.post('/users/me/avatar',upload.single('avatar'), async (request, response) => {
+router.post('/users/me/avatar', auth, upload.single('avatar'), async (request, response) => {
+    request.user.avatar = request.file.buffer;
+    await request.user.save();
     response.send();
+}, (error, request, response, next) => {
+    response.status(400).send({ error: error.message });
+});
+
+router.delete('/users/me/avatar', auth, async (request, response) => {
+    request.user.avatar = undefined;
+    await request.user.save();
+    response.send();
+});
+
+router.get('/users/:id/avatar', async (request, response) => {
+    try {
+        const user = await User.findById(request.params.id)
+
+        if(!user || !user.avatar) {
+            throw new Error();
+        }
+
+        response.set('Content-Type', 'image/jpg');
+        response.send(user.avatar)
+    } catch (error) {
+        response.status(404).send()
+    }
 });
 
 export default router;
